@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Factory</title>
+    
+    <link rel="shortcut icon" href="img/icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="module" src="js/index.js"></script>
+    <script type="module" src="js/form.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img/icon.png" alt="logo">
+            <span class="name">Command Factory</span>
+        </div>
+        <nav>
+            <span>
+                <span class="unselectable" tabindex="0">Other Tools<i class="fas fa-caret-down"></i></span>
+                <div>
+                    <a href="htpps://circle-coords.github.io">Circle Coords generator</a>
+                    <small>More to come...</small>
+                </div>
+            </span>
+            <span>
+                <span class="unselectable" tabindex="0">GitHub<i class="fas fa-caret-down"></i></span>
+                <div>
+                    <a href="https://github.com/cmdfactory/cmdfactory.github.io">View repository</a>
+                    <a href="https://github.com/cmdfactory/cmdfactory.github.io/issues">Report a bug</a>
+                    <a href="https://github.com/cmdfactory/cmdfactory.github.io/pulls">Contribute</a>
+                </div>
+            </span>
+        </nav>
+    </header>
+    <div class="command-list-container">
+        <h1>Choose a command</h1>
+        <div class="lists">
+            <div>
+                <h4>Choose one of those</h4>
+                <div class="command-list"></div>
+            </div>
+            <div>
+                <h4>Planned commands</h4>
+                <div class="command-list planned"></div>
+            </div>
+        </div>
+    </div>
+    <div id="info-container" class="info-container hidden">
+        <span class="close">x</span>
+        <div class="info-message">
+            
+        </div>
+    </div>
+</body>
+</html>

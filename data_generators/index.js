@@ -32,6 +32,7 @@ function getRegistryKeys(entriesObject, splitBy) {
     object.forEach((el, i) => {
         object[i] = el.split(splitBy ?? ':')[1];
     })
+    object = object.sort();
     return JSON.stringify(
         object,
         undefined,
@@ -227,7 +228,13 @@ function getEnchantments() {
     let newObject = {};
     allAttributes.forEach(el => {
         newObject[el] = [];
-    })
+    });
     console.log(JSON.stringify(newObject, undefined, 4));
 }
 document.querySelector('#getEnchantments').addEventListener('click', getEnchantments);
+
+// PARTICLES
+function getParticles() {
+    console.log(getRegistryKeys(registryReport["minecraft:particle_type"].entries));
+}
+document.querySelector('#getParticles').addEventListener('click', getParticles);

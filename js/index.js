@@ -19,7 +19,7 @@ $(window).ready(function() {
         cmdEl.click(function() {
             let $body = $(document.body);
             $body.children('.generator-container').remove();
-            new Form( allCommands.playsound ).addToDOM($body);
+            new Form( allCommands[cmd] ).addToDOM($body);
         })
     });
     //! generate a list of commands

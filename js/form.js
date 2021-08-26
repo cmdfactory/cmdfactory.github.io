@@ -2,10 +2,10 @@ import { allSelectors, allSelectorArgs, allEnchantments, allCommands, unsetOptio
 
 
 class GeneralFormRow {
-    constructor({ id, defaultVal, ignoreOutput }) {
+    constructor({ id, defaultVal, ignoreOutput, randomId = false }) {
         $.extend(this, $('<div class="form-row"></div>'));
         this.default = defaultVal;
-        this.id = id;
+        this.id = id ?? 'a'+(Math.random() + 1).toString(36).substring(2); //putting letter in front so it doesn't ever start with a number
         this.ignoreOutput = ignoreOutput;
     };
     
@@ -287,7 +287,7 @@ let FormRow = {
     },
     //! --------------------------- TEXT
     Text: class extends GeneralFormRow {
-        constructor({ id, ignoreId, size, label, inputOnly, negationButton, inputRegex, maxLength, required, tip, inputClass, inputCss, ignoreOutput, defaultVal }) {
+        constructor({ id, ignoreId, size = 'M', label, inputOnly, negationButton, inputRegex, maxLength, required, tip, inputClass, inputCss, ignoreOutput, defaultVal }) {
             if (!size) throw new Error('Expected field size, got undefined');
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
             if (!label && !inputOnly) throw new Error('Expected field label, got undefined');
@@ -447,8 +447,7 @@ let FormRow = {
     },
     //! --------------------------- NUMBER
     Number: class extends GeneralFormRow {
-        constructor({ id, ignoreId, min, max, size, label, inputOnly, inputRegex, required, tip, inputClass, inputCss, ignoreOutput, defaultVal }) {
-            if (!size) throw new Error('Expected field size, got undefined');
+        constructor({ id, ignoreId, min, max, size = 'M', label, inputOnly, inputRegex, required, tip, inputClass, inputCss, ignoreOutput, defaultVal, format }) {
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
             if (!label && !inputOnly) throw new Error('Expected field label, got undefined');
             super({ id, defaultVal, ignoreOutput });
@@ -1392,9 +1391,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            //! generate dummy id, needed for the field to work properly
-            id = id ?? (Math.random() * Math.random() + 1).toString(36).substring(2);
-            super({ id, ignoreOutput });
+            super({ id, ignoreOutput, randomId: true, });
             //! add label
             this.append($(
                 `
@@ -2369,6 +2366,11 @@ function generateFormRow(fieldData, field) {
             });
         case 'uuid':
             return new FormRow.UUID({
+                ignoreId: true,
+                ...fieldData,
+            });
+        case 'color':
+            return new FormRow.Color({
                 ignoreId: true,
                 ...fieldData,
             });

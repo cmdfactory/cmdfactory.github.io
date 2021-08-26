@@ -72,7 +72,7 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
-.code, code {
+code, .code {
     font-family: 'Fira Mono', monospace;
     font-size: 13px;
     /* padding: 0px 0.3rem;

@@ -1,6 +1,12 @@
 changes marked with "+" are added features
 changes marked with "-" are removed features
 changes marked with "*" are bug fixes
+changes marked with "!" are internal changes, that do not affect the website directly
+
+1.0.1
+* fixed color fields not being generated
+* fixed all command buttons generating a form for "/playsound"
+! moved random id generation to "GeneralFormRow" class
 
 1.0.0
 + created the foundation for the generator

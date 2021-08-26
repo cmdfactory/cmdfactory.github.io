@@ -1,0 +1,7 @@
+changes marked with "+" are added features
+changes marked with "-" are removed features
+changes marked with "*" are bug fixes
+
+1.0.0
++ created the foundation for the generator
++ added support for "/playsound" command

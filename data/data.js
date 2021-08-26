@@ -1,6 +1,6 @@
 // TEMPLATE OBJECTS
 // objects or arrays that are used or referenced to many times
-export const itemGroups = {}
+export const itemGroups = {};
 {
     itemGroups.swords = [
         'wooden_sword',
@@ -110,6 +110,8 @@ export const itemGroups = {}
     ];
 }
 export const unsetOption = ['unset', null];
+export const intLimit = 2_147_483_647;
+export const floatLimit = 340_282_356_779_733_661_637_539_395_458_142_568_447.9;
 
 // GAMEMODES
 export const allGameModes = [
@@ -137,7 +139,7 @@ export const allBasicColors = [
     "light_purple",
     "yellow",
     "white",
-]
+];
 
 // BLOCKS AND BLOCK STATES
 export const allBlocks = [
@@ -1039,7 +1041,7 @@ export const allBlocks = [
     "raw_gold_block",
     "potted_azalea_bush",
     "potted_flowering_azalea_bush"
-]
+];
 export const allBlockStates = {
     "snowy": [
         [
@@ -1798,7 +1800,7 @@ export const allBlockStates = {
             "full"
         ]
     ]
-}
+};
 export const blockStatesForBlocks = {
     /*
     "block": {
@@ -5960,7 +5962,7 @@ export const allSoundsFancy = {
             "above": true
         }
     }
-}
+};
 export const allSounds = [
     "ambient.cave",
     "ambient.basalt_deltas.additions",
@@ -7152,7 +7154,7 @@ export const allSounds = [
     "entity.zombie_villager.death",
     "entity.zombie_villager.hurt",
     "entity.zombie_villager.step"
-]
+];
 
 // EFFECTS
 export const allEffects = [
@@ -7188,7 +7190,7 @@ export const allEffects = [
     "dolphins_grace",
     "bad_omen",
     "hero_of_the_village"
-]
+];
 
 // ITEMS
 export const allItems = [
@@ -8292,7 +8294,7 @@ export const allItems = [
     "large_amethyst_bud",
     "amethyst_cluster",
     "pointed_dripstone"
-]
+];
 
 // ENTITIES
 export const allEntities = [
@@ -8409,7 +8411,7 @@ export const allEntities = [
     "zombified_piglin",
     "player",
     "fishing_bobber"
-]
+];
 
 // ATTRIBUTES
 export const allAttributes = { //"attribute": appliesToArray
@@ -8426,7 +8428,7 @@ export const allAttributes = { //"attribute": appliesToArray
     "flying_speed": ['parrot'],
     "spawn_reinforcements": ['zombie', 'husk', 'drowned'],
     "jump_strength": ['horse', 'donkey', 'mule', 'zombie_horse', 'skeleton_horse'],
-}
+};
 export const allAttributesFull = [
     "generic.max_health",
     "generic.follow_range",
@@ -8441,7 +8443,7 @@ export const allAttributesFull = [
     "generic.luck",
     "zombie.spawn_reinforcements",
     "horse.jump_strength"
-]
+];
 
 // SCOREBOARD CRITERIA
 export const allScoreboardCriteria = {
@@ -8543,7 +8545,7 @@ export const allScoreboardCriteria = {
         "target_hit",
         "interact_with_smithing_table"
     ]
-}
+};
 
 // PAINTING MOTIVES
 export const allPaintingMotives = [
@@ -8573,7 +8575,7 @@ export const allPaintingMotives = [
     "burning_skull",
     "skeleton",
     "donkey_kong"
-]
+];
 
 // ENCHANTMENTS
 export const allEnchantments = {
@@ -8615,7 +8617,7 @@ export const allEnchantments = {
     "piercing": ['crossbow'],
     "mending": itemGroups.durability_items,
     "vanishing_curse": itemGroups.enchantables,
-}
+};
 
 // NBT TAGS
 export const allNBTTags = {
@@ -8796,8 +8798,8 @@ export const allNBTTags = {
             label: 'Firework Explosion',
             tip: `<span></span>` //TODO
         }
-    }
-}
+    },
+};
 
 // SELECTOR ARGUMENTS
 export const allSelectors = {
@@ -8817,7 +8819,7 @@ export const allSelectors = {
         ['@e', 'All entities'],
         ['</code>Player name<code>', 'Lets you specify the exact player name that should be targeted.'],
     ],
-}
+};
 export const allSelectorArgs = {
     limit: {
         type: "number",
@@ -8864,10 +8866,10 @@ export const allSelectorArgs = {
         tip: `<span>
             How the game should sort the results.
             <ul>
-                <li><b>nearest</b> - sorts by distance from the executor's position, and picks the nearest entities. Default for <code>@p</code></li>
-                <li><b>furthest</b> - sorts by distance from the executor's position, and picks the furthest entities.</li>
-                <li><b>random</b> - sorts entities randomly. Default for <code>@r</code></li>
-                <li><b>arbitrary</b> - entities are sorted by the time on which they appeared in the world. Oldest entities first. Default for <code>@a</code> and <code>@e</code></li>
+                <li><b><code>nearest</code></b> - sorts by distance from the executor's position, and picks the nearest entities. Default for <code>@p</code></li>
+                <li><b><code>furthest</code></b> - sorts by distance from the executor's position, and picks the furthest entities.</li>
+                <li><b><code>random</code></b> - sorts entities randomly. Default for <code>@r</code></li>
+                <li><b><code>arbitrary</code></b> - entities are sorted by the time on which they appeared in the world. Oldest entities first. Default for <code>@a</code> and <code>@e</code></li>
             </ul>
             <span class="tip-tip">effects can only be seen if the limit is set.</span>
         </span>`
@@ -9109,7 +9111,7 @@ export const allSelectorArgs = {
         buttonText: 'Add predicate...',
         emptyListText: 'No predicates added yet!',
     },
-}
+};
 
 //COMMANDS
 export const allCommands = {
@@ -9289,4 +9291,4 @@ export const allCommands = {
     teleport: { planned: true },
     tellraw: { planned: true },
     title: { planned: true },
-}
+};

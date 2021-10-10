@@ -9222,7 +9222,349 @@ export const allCommands = {
     item: { planned: true },
     kill: { planned: true },
     loot: { planned: true },
-    particle: { planned: true },
+    particle: {
+        wikipage: 'Commands/particle',
+        steps: [
+            {
+                header: {
+                    text: 'Choose the particle',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "particle",
+                        type: "particle",
+                        required: true,
+                        label: "Particle",
+                    },
+                ],
+            },
+            {
+                header: {
+                    text: 'Additional particle options',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "dustColor",
+                        type: "color",
+                        format: "rgbfloat",
+                        required: true,
+                        label: "Dust color",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'dust', 'dust_color_transition' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the color of the dust particle.
+                        </span>`,
+                    },
+                    {
+                        name: "dustSize",
+                        type: "number",
+                        format: "float",
+                        min: 0,
+                        max: 4,
+                        required: true,
+                        label: "Dust size",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'dust', 'dust_color_transition' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the size of the dust particle.
+                        </span>`,
+                    },
+                    {
+                        name: "dustColor2",
+                        type: "color",
+                        format: "rgbfloat",
+                        required: true,
+                        label: "Dust fade-to color",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'dust_color_transition' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the color to which the dust particle transitions to.
+                        </span>`,
+                    },
+                    {
+                        name: "effectColor",
+                        type: "color",
+                        format: "rgbfloat",
+                        required: true,
+                        label: "Effect particle color",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'entity_effect', 'ambient_entity_effect' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the color of the effect particle.
+                        </span>`,
+                    },
+                    {
+                        name: "effectGamma",
+                        type: "number",
+                        format: "float",
+                        min: 0,
+                        max: 1,
+                        required: true,
+                        label: "Effect particle gamma",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'entity_effect', 'ambient_entity_effect' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the gamma value for the effect particle, making the particle brighter or darker. Value of "1" results in full brightness, and "255" results in black particles.
+                        </span>`,
+                    },
+                    {
+                        name: "blocktype",
+                        type: "block",
+                        blockStates: true,
+                        NBT: false,
+                        required: true,
+                        label: "Block type",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'block', 'falling_dust' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the block from which the particles should be generated. Block states may affect how the particles look.
+                        </span>`,
+                    },
+                    {
+                        name: "itemtype",
+                        type: "item",
+                        NBT: false,
+                        required: true,
+                        label: "Item type",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'item' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the item from which the particles should be generated. NBT data does not affect how the particles look, and thus cannot be selected here.
+                        </span>`,
+                    },
+                    {
+                        name: "vibrationFrom",
+                        type: "vec3",
+                        required: true,
+                        label: "Vibration location (from)",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'vibration' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the position from which the vibration should travel. Tildes (<code>~</code>) and carets (<code>^</code>) cannot be used here.
+                        </span>`,
+                    },
+                    {
+                        name: "vibrationTo",
+                        type: "vec3",
+                        required: true,
+                        label: "Vibration location (to)",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'vibration' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the position to which the vibration should travel. Tildes (<code>~</code>) and carets (<code>^</code>) cannot be used here.
+                        </span>`,
+                    },
+                    {
+                        name: "vibrationTime",
+                        type: "time",
+                        min: 1,
+                        max: intLimit,
+                        required: true,
+                        label: "Vibration duration",
+                        addIf: [
+                            {
+                                field: "particle",
+                                values: [ 'vibration' ],
+                            }
+                        ],
+                        tip: `<span>
+                            Specifies the duration of the vibration.
+                            <br/><br/>
+                            <span class="tip-warning">once summoned, the particle will stay visible until this time runs out, and you will not be able to get rid of it. Be cautious!</span>
+                        </span>`,
+                    },
+                    {
+                        type: "textrow",
+                        text: "No additional particle options are available for the selected particle!",
+                        showOnlyIfEmpty: true,
+                    }
+                ],
+            },
+            {
+                header: {
+                    text: 'Options',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "pos",
+                        type: "coordinates",
+                        label: "Position",
+                    },
+                    {
+                        name: "delta",
+                        type: "vec3",
+                        label: "Delta",
+                        tip: `<span>
+                            Number of blocks from the point of execution where the particles appear, multiplie by about 8. Some particles may end up outside this box, in either direction.
+                        </span>`
+                    },
+                    {
+                        name: "speed",
+                        type: "number",
+                        format: "float",
+                        min: 0,
+                        max: floatLimit,
+                        label: "Speed",
+                        tip: `<span>
+                            The speed of the particle. Some particles are not affected by this field.
+                        </span>`
+                    },
+                    {
+                        name: "count",
+                        type: "number",
+                        format: "int",
+                        min: 0,
+                        max: intLimit,
+                        label: "Count",
+                        tip: `<span>
+                            The amount of particles to be created.<br/><br/>
+                            <span class="tip-warning">setting this to a very large amount may cause the world to lag heavily; huge values may cause the game/server to freeze.</span>
+                        </span>`
+                    },
+                    {
+                        name: "mode",
+                        type: "select",
+                        options: [
+                            unsetOption,
+                            'normal',
+                            'force',
+                        ],
+                        label: "Mode",
+                        tip: `<span>
+                            The mode that should be used to display the particles.
+                            <ul>
+                                <li><b><code>normal</code></b> - default value. The particles can only be seen by players who are up to 32 blocks away, and player settings may affect what particles can be seen.</li>
+                                <li><b><code>force</code></b> - The particles can be seen by players who are up to 512 blocks away, and player settings do not affect the particles.</li>
+                            </ul>
+                        </span>`
+                    },
+                    {
+                        name: "viewers",
+                        type: "selector",
+                        label: "Viewers",
+                        tip: `<span>
+                            Specifies who can see the particles.
+                        </span>`
+                    },
+                ],
+            },
+        ],
+        generator: function(fields, output) {
+            let allRequiredFieldsAreFilled = true;
+            for (const field in fields) {
+                const fieldEl = fields[field];
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.hasClass('hidden')) {
+                    allRequiredFieldsAreFilled = false;
+                    break;
+                }
+            }
+            output.removeClass('red');
+            if (allRequiredFieldsAreFilled) {
+                let outputArr = [];
+                outputArr.push('/particle');
+                //particle type
+                outputArr.push(fields.particle.value);
+                let addPos = true;
+                //special parameters
+                switch (fields.particle.value) {
+                    case 'dust':
+                    case 'dust_color_transition':
+                        outputArr.push(fields.dustColor.value);
+                        outputArr.push(fields.dustSize.value);
+                        if (fields.particle.value == 'dust_color_transition') outputArr.push(fields.dustColor2.value);
+                        break;
+                    case 'entity_effect':
+                    case 'ambient_entity_effect':
+                        outputArr.push(fields.pos.value);
+                        addPos = false;
+                        outputArr.push(fields.effectColor.value);
+                        outputArr.push(fields.effectGamma.value);
+                        break;
+                    case 'block':
+                        outputArr.push(fields.blocktype.value);
+                        break;
+                    case 'item':
+                        outputArr.push(fields.itemtype.value);
+                        break;
+                    case 'vibration':
+                        outputArr.push(fields.vibrationFrom.value);
+                        outputArr.push(fields.vibrationTo.value);
+                        outputArr.push(fields.vibrationTime.value);
+                        break;
+                }
+                //position
+                if (addPos && (fields.pos.isFilled() || fields.delta.isFilled() || fields.speed.isFilled() || fields.count.isFilled() || fields.mode.isFilled() || fields.viewers.isFilled())) {
+                    outputArr.push(fields.pos.isFilled() ? fields.pos.value : '~ ~ ~');
+                }
+                //delta
+                if (fields.delta.isFilled() || fields.speed.isFilled() || fields.count.isFilled() || fields.mode.isFilled() || fields.viewers.isFilled()) {
+                    outputArr.push(fields.delta.isFilled() ? fields.delta.value : '0 0 0');
+                }
+                //speed
+                if (fields.speed.isFilled() || fields.count.isFilled() || fields.mode.isFilled() || fields.viewers.isFilled()) {
+                    outputArr.push(fields.speed.isFilled() ? fields.speed.value : '0');
+                }
+                //count
+                if (fields.count.isFilled() || fields.mode.isFilled() || fields.viewers.isFilled()) {
+                    outputArr.push(fields.count.isFilled() ? fields.count.value : '1');
+                }
+                //mode
+                if (fields.mode.isFilled() || fields.viewers.isFilled()) {
+                    outputArr.push(fields.mode.isFilled() ? fields.mode.value : 'normal');
+                }
+                //viewers
+                if (fields.viewers.isFilled()) {
+                    outputArr.push(fields.viewers.value);
+                }
+                
+                //concatenate array
+                output.val(outputArr.join(' '));
+            }
+            else {
+                output.addClass('red');
+                output.val('Not all required fields are filled!');
+            }
+        }
+    },
     playsound: {
         wikipage: 'Commands/playsound',
         steps: [
@@ -9348,8 +9690,9 @@ export const allCommands = {
             let allRequiredFieldsAreFilled = true;
             for (const field in fields) {
                 const fieldEl = fields[field];
-                if (fieldEl.required && !fieldEl.isFilled()) {
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.hasClass('hidden')) {
                     allRequiredFieldsAreFilled = false;
+                    break;
                 }
             }
             if (allRequiredFieldsAreFilled) {
@@ -9370,6 +9713,7 @@ export const allCommands = {
                 if (fields.minVolume.isFilled()) {
                     outputArr.push(fields.minVolume.value);
                 }
+                //concatenate array
                 output.val(outputArr.join(' '));
             }
         }

@@ -1,10 +1,10 @@
 /* font-awesome */
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
 /* fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
 /* other stylesheets */
-@import url('/css/form.css');
+@import url('./form.min.css');
 
 /* create variables */
 :root {
@@ -23,10 +23,11 @@
     --green: rgb(59, 165, 93);
     --green-rgb: 59, 165, 93;
 
-    --code-blue: rgb(156, 220, 254);
+    --code-blue: #569cd6;
     --code-green: rgb(177, 201, 164);
     --code-orange: rgb(206, 145, 120);
-    --code-red: var(--red);
+    --code-red: rgb(218, 109, 109);
+    --code-dark-red: var(--red);
 }
 
 /* normalize margins and paddings */
@@ -73,7 +74,7 @@ body {
     user-select: none;
 }
 code, .code {
-    font-family: 'Fira Mono', monospace;
+    font-family: 'Fira Code', monospace;
     font-size: 13px;
     /* padding: 0px 0.3rem;
     background: rgba(0, 0, 0, 0.2);
@@ -338,9 +339,9 @@ header nav > span > div small {
     scrollbar-width: none;
     color: var(--text);
 }
+.generator-step.finish textarea.red {
+    color: var(--red);
+}
 .generator-step.finish textarea:focus {
     border-color: var(--acc-vl);
-}
-.generator-step.finish textarea::-webkit-scrollbar {
-
 }

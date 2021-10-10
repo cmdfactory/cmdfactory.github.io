@@ -1,2 +1,4 @@
 buglist.md
 old-source.js
+js/node_modules
+js/package-lock.json

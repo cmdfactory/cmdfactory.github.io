@@ -1,5 +1,5 @@
-import { allCommands } from '../data/data.js';
-import Form from './form.js';
+import { allCommands } from '../data/data.min.js';
+import Form from './form.min.js';
 
 $(window).ready(function() {
     //! generate a list of commands

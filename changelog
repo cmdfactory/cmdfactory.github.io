@@ -3,6 +3,14 @@ changes marked with "-" are removed features
 changes marked with "*" are bug fixes
 changes marked with "!" are internal changes, that do not affect the website directly
 
+1.1.0
++ added support for "/particle" command
++ added "FormRow.compound.Particle" constructor
++ number fields now support choosing of number types: "int", "float"
++ color fields now support additional formats: "rgbint", "rgbfloat"
++ all fields now have a "row-type" attribute stating their type. Not used in any way, only for easier navigation through developer tools
++ added minified versions of all files
+
 1.0.1
 * fixed color fields not being generated
 * fixed all command buttons generating a form for "/playsound"

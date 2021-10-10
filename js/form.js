@@ -1,16 +1,16 @@
-import { allSelectors, allSelectorArgs, allEnchantments, allCommands, unsetOption, allSoundsFancy } from '../data/data.js';
-
+import { allSelectors, allSelectorArgs, allEnchantments, unsetOption, allSoundsFancy, allParticles } from '../data/data.min.js';
 
 class GeneralFormRow {
-    constructor({ id, defaultVal, ignoreOutput, randomId = false }) {
+    constructor({ id, defaultVal, ignoreOutput, randomId = false, type }) {
         $.extend(this, $('<div class="form-row"></div>'));
         this.default = defaultVal;
-        this.id = id ?? 'a'+(Math.random() + 1).toString(36).substring(2); //putting letter in front so it doesn't ever start with a number
+        this.id = id ?? (randomId && 'a'+(Math.random() + 1).toString(36).substring(2)); //putting letter in front so it doesn't ever start with a number
         this.ignoreOutput = ignoreOutput;
+        type && this.attr('row-type', type);
     };
     
     addToDOM(destination, addMode) {
-        if (!destination) throw 'Cannot add field to a form: no form element passed!';
+        if (!destination) throw 'Cannot add field to element: no destination specified!';
         destination = $(destination);
         switch (addMode?.toLowerCase?.()) {
             case 'prepend':
@@ -274,7 +274,7 @@ let FormRow = {
     Dummy: class extends GeneralFormRow {
         constructor({ id, ignoreId, defaultVal }) {
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
-            super({ id, defaultVal });
+            super({ id, defaultVal, type: 'dummy' });
             $.extend(this, $(`<input class="invisible" ${id ? 'id="'+id+'"' : ''}>`));
         }
         get value() {
@@ -291,7 +291,7 @@ let FormRow = {
             if (!size) throw new Error('Expected field size, got undefined');
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
             if (!label && !inputOnly) throw new Error('Expected field label, got undefined');
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'text' });
             //add label
             if (!inputOnly) {
                 this.append($(
@@ -450,9 +450,8 @@ let FormRow = {
         constructor({ id, ignoreId, min, max, size = 'M', label, inputOnly, inputRegex, required, tip, inputClass, inputCss, ignoreOutput, defaultVal, format }) {
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
             if (!label && !inputOnly) throw new Error('Expected field label, got undefined');
-            super({ id, defaultVal, ignoreOutput });
-            //add label
-            //add label
+            super({ id, defaultVal, ignoreOutput, type: 'number' });
+            //! add label
             if (!inputOnly) {
                 this.append($(
                     `
@@ -462,7 +461,7 @@ let FormRow = {
                     `
                 ));
             }
-            //add input container (already contains the input clear button)
+            //! add input container (already contains the input clear button)
             if (inputOnly) {
                 this.removeClass('form-row').addClass('input-container unselectable');
             }
@@ -477,7 +476,7 @@ let FormRow = {
                     `
                 ));
             }
-            //construct and add the input
+            //! construct and add the input
             let inputContainer = this.find('.input-container');
             this.whyDisabledLocation = inputContainer;
             let inputElement = $(`<input class="textfield size${size.toUpperCase()} ${inputClass ? inputClass : ''}" type="text" name="text-field"${this.id ? ' id="'+this.id+'"' : ''} autocomplete="off">`);
@@ -485,7 +484,7 @@ let FormRow = {
             if (inputCss) {
                 inputElement.css(inputCss);
             }
-            //add functionality to the clear button
+            //! add functionality to the clear button
             let clearButton = this.find('.clear-button');
             clearButton.click(function() {
                 let fields = $(this).parent().parent().children('input, select')
@@ -499,38 +498,47 @@ let FormRow = {
                 inputElement.removeClass('fake-hover');
             });
             clearButton.attr({title:"Clear the field"});
-            //process regex patterns for the input
-            inputRegex = [
-                /[^0-9,\.\-]/,
-                [ /,/, '.' ],
-                [ /(.+)-/, '$1' ],
-                [ /\.(.*)\./, '.$1' , -1],
-                [ /^(-?)\./, '$10.' ],
-                [ /^(-?)0{2,}/, '$10' ],
-                ...(inputRegex ?? []),
-            ]
-            //accepts an array of [pattern, replace] arrays
-            if (inputRegex) {
-                inputElement.on('input', function(e) {
-                    let val = $(this).val();
-                    let caretPosition = e.target.selectionStart; 
-                    inputRegex.forEach(patternArr => {
-                        if (!Array.isArray(patternArr)) patternArr = [patternArr, ''];
-                        let safetySwitch = 0;
-                        while (val.match(patternArr[0])) {
-                            if (safetySwitch > 99) throw 'Executing of regex patterns on input took too long, action aborted';
-                            let lengthBefore = val.length;
-                            val = val.replace(patternArr[0], patternArr[1]);
-                            $(this).val(val);
-                            caretPosition -= lengthBefore - val.length;
-                            if (patternArr[2]) caretPosition+= patternArr[2];
-                            safetySwitch++;
-                        }
-                    });
-                    $(this).val(val);
-                    this.setSelectionRange(caretPosition, caretPosition);
-                })
-            };
+            //! process regex patterns for the input
+            if (format == "int") {
+                inputRegex = [
+                    /[^0-9\-]/,
+                    [ /(.+)-/, '$1' ],
+                    [ /^(-?)0{2,}/, '$10' ],
+                    ...(inputRegex ?? []),
+                ];
+            }
+            else {
+                inputRegex = [
+                    /[^0-9,\.\-]/,
+                    [ /,/, '.' ],
+                    [ /(.+)-/, '$1' ],
+                    [ /\.(.*)\./, '.$1' , -1],
+                    [ /^(-?)\./, '$10.' ],
+                    [ /^(-?)0{2,}/, '$10' ],
+                    ...(inputRegex ?? []),
+                ];
+            }
+            //! accepts an array of [pattern, replace] arrays
+            inputElement.on('input', function(e) {
+                let val = $(this).val();
+                let caretPosition = e.target.selectionStart; 
+                inputRegex.forEach(patternArr => {
+                    if (!Array.isArray(patternArr)) patternArr = [patternArr, ''];
+                    let safetySwitch = 0;
+                    while (val.match(patternArr[0])) {
+                        if (safetySwitch > 99) throw 'Executing of regex patterns on input took too long, action aborted';
+                        let lengthBefore = val.length;
+                        val = val.replace(patternArr[0], patternArr[1]);
+                        $(this).val(val);
+                        caretPosition -= lengthBefore - val.length;
+                        if (patternArr[2]) caretPosition+= patternArr[2];
+                        safetySwitch++;
+                    }
+                });
+                $(this).val(val);
+                this.setSelectionRange(caretPosition, caretPosition);
+            });
+            //! process min/max values
             min = min ?? -Infinity;
             max = max ??  Infinity;
             inputElement.on('input', function() {
@@ -542,7 +550,7 @@ let FormRow = {
                     inputElement.val(max);
                 }
             })
-            //add "required" functionality
+            //! add "required" functionality
             if (required) {
                 this.find('.label-container').append?.($('<span class="required-asterisk" title="This field is required!">*</span>'));
                 inputElement.on('input', function() {
@@ -566,7 +574,7 @@ let FormRow = {
             else {
                 inputContainer.prepend(inputElement);
             }
-            //construct and add the show-info button+popup
+            //! construct and add the show-info button+popup
             if (tip) {
                 if (inputOnly) {
                     this.append($('<hr>'));
@@ -595,7 +603,7 @@ let FormRow = {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label && !inputOnly) throw 'Expected field label, got undefined';
             if (!options || !options.length) throw 'Expected field option list, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'select' });
             if (inputOnly) {
                 this.removeClass('form-row').addClass('input-container unselectable');
             }
@@ -759,11 +767,168 @@ let FormRow = {
         }
     },
     //! --------------------------- UUID
+    Vec3: class extends GeneralFormRow {
+        constructor({ id, ignoreId, label, size = 'S', tip, inputClass, ignoreOutput, defaultVal, required = false }) {
+            if (!id && !ignoreId) throw 'Expected field ID, got undefined';
+            if (!label) throw 'Expected field label, got undefined';
+            super({ id, defaultVal, ignoreOutput, type: 'vec3' });
+            //! add label
+            this.append($(
+                `
+                <div class="label-container">
+                    <label for="${id ? id+'1' : ''}">${label}</label>
+                </div>
+                `
+            ));
+            //! add hover effect for the label
+            this.find('.label-container > label').hover(function() {
+                $(this).parent().parent().children('.input-container').children('.uuid-container').addClass('fake-hover');
+            }, function() {
+                $(this).parent().parent().children('.input-container').children('.uuid-container').removeClass('fake-hover')
+            });
+            //! add input container (already contains the input clear button)
+            this.append($(
+                `
+                <div class="input-container unselectable">
+                    <div class="vec3-container">
+                        <input class="vec3-field size${size.toUpperCase()} ${inputClass ? inputClass+'1' : ''}" type="text"${this.id ? ' id="'+this.id+'1" ' : ''} autocomplete="off">
+                        <input class="vec3-field size${size.toUpperCase()} ${inputClass ? inputClass+'2' : ''}" type="text"${this.id ? ' id="'+this.id+'2" ' : ''} autocomplete="off">
+                        <input class="vec3-field size${size.toUpperCase()} ${inputClass ? inputClass+'3' : ''}" type="text"${this.id ? ' id="'+this.id+'3" ' : ''} autocomplete="off">
+                        <input class="invisible ${inputClass ? inputClass : ''}" type="text" tabindex="-1">
+                        <div class="clear-button-container">
+                            <button class="clear-button" tabindex="-1">x</button>
+                        </div>
+                    </div>
+                </div>
+                `
+            ));
+            //! construct and add the input
+            let inputContainer = this.find('.input-container');
+            this.whyDisabledLocation = inputContainer;
+            let uuidContainer = inputContainer.children('.vec3-container');
+            let inputElement = uuidContainer.children('input:not(.invisible)');
+            let dummyInput = uuidContainer.children('input.invisible');
+            this.inputElement = inputElement;
+            this.dummyInput = dummyInput;
+            //! add functionality to the clear button
+            let clearButton = this.find('.clear-button');
+            clearButton.click(function() {
+                let fields = $(this).parent().parent().children('input, select')
+                fields.val(null);
+                fields[0].focus();
+                updateDummyField();
+            });
+            clearButton.hover(function() {
+                uuidContainer.addClass('fake-hover');
+            }, function () {
+                uuidContainer.removeClass('fake-hover');
+            });
+            clearButton.attr({title:"Clear the field"});
+            //! add pasting whole UUID functionality
+            inputElement.on('input', function() {
+                if (this.value?.match(/[^ ]* [^ ]* ?[^ ]*/)) {
+                    let values = this.value.split(' ');
+                    values.forEach((_,i) => {
+                        inputRegex.forEach(regex => {
+                            if (!Array.isArray(regex)) regex = [regex, ''];
+                            while(values[i].match(regex[0])) values[i] = values[i].replace(regex[0], regex[1]);
+                        })
+                    });
+                    $(inputElement[0]).val(values[0]);
+                    $(inputElement[1]).val(values[1]);
+                    $(inputElement[2]).val(values[2]);
+                };
+                updateDummyField();
+            });
+            //! add default regex patterns
+            let inputRegex = [
+                /[^0-9,\.\-]/,
+                [ /,/, '.' ],
+                [ /(.+)-/, '$1' ],
+                [ /\.(.*)\./, '.$1' , -1],
+                [ /^(-?)\./, '$10.' ],
+                [ /^(-?)0{2,}/, '$10' ],
+            ];
+            //! process regex patterns for the input
+            //accepts an array of [pattern, replace] arrays
+            inputElement.on('input', function(e) {
+                let val = $(this).val();
+                let caretPosition = e.target.selectionStart; 
+                inputRegex.forEach(patternArr => {
+                    if (!Array.isArray(patternArr)) patternArr = [patternArr, ''];
+                    let safetySwitch = 0;
+                    while (val.match(patternArr[0])) {
+                        if (safetySwitch > 99) throw 'Executing of regex patterns on input took too long, action aborted';
+                        let lengthBefore = val.length;
+                        val = val.replace(patternArr[0], patternArr[1]);
+                        $(this).val(val);
+                        caretPosition -= lengthBefore - val.length;
+                        safetySwitch++;
+                    }
+                });
+                $(this).val(val);
+                this.setSelectionRange(caretPosition, caretPosition);
+            });
+            //! add functionality to the dummy field
+            function updateDummyField() {
+                let valArr = [];
+                inputElement.each((i,el) => {
+                    valArr.push($(el).val());
+                })
+                let outputVal = valArr.join(' ');
+                if (!outputVal.trim()) {
+                    dummyInput.val(null);
+                }
+                else {
+                    dummyInput.val(outputVal);
+                }
+            }
+            //! add "required" functionality
+            if (required) {
+                this.find('.label-container').append?.($('<span class="required-asterisk" title="This field is required!">*</span>'));
+                inputElement.on('input', function() {
+                    inputElement.removeClass('error');
+                    inputElement.attr({title: ""});
+                    if (!this.value || !($(this).parent().children('.invisible') && !$(this).parent().children('.invisible').val())) {
+                        inputElement.addClass('error');
+                        inputElement.attr({title: "This field is required!"});
+                    }
+                });
+                inputElement.on('blur', function() {
+                    if (!this.value || !($(this).parent().children('.invisible') && !$(this).parent().children('.invisible').val())) {
+                        inputElement.addClass('error');
+                        inputElement.attr({title: "This field is required!"});
+                    }
+                })
+            }
+            inputElement.on('input', updateDummyField);
+            //! construct and add the show-info button+popup
+            if (tip) {
+                inputContainer.append($('<hr>'));
+                inputContainer.append(generateTipElement(tip));
+            };
+        }
+        get value() {
+            return this.find('input.invisible').val();
+        }
+        set value(values) {
+            this.find('input').each((i, input) => {
+                $(input).val(values?.[i] ?? null);
+            });
+        }
+        isFilled() {
+            return Boolean(this.value?.match(/.+ .+ .+/));
+        }
+        addInputListeners(type, callback) {
+            this.inputElement.on(type, callback);
+        }
+    },
+    //! --------------------------- UUID
     UUID: class extends GeneralFormRow {
         constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'uuid' });
             //add label
             this.append($(
                 `
@@ -817,13 +982,7 @@ let FormRow = {
                 uuidContainer.removeClass('fake-hover');
             });
             clearButton.attr({title:"Clear the field"});
-            //add default regex patterns
-            let inputRegex = [
-                /[^\-0-9]/,
-                [/(\d)-/, '$1']
-            ];
-            //process regex patterns for the input
-            //accepts an array of [pattern, replace] arrays
+            //add pasting whole UUID functionality
             inputElement.on('input', function() {
                 if (this.value?.match(/[^,]*,[^,]*,?[^,]*,?[^,]*/)) {
                     let values = this.value.split(',');
@@ -840,6 +999,13 @@ let FormRow = {
                 };
                 updateDummyField();
             });
+            //add default regex patterns
+            let inputRegex = [
+                /[^\-0-9]/,
+                [/(\d)-/, '$1']
+            ];
+            //process regex patterns for the input
+            //accepts an array of [pattern, replace] arrays
             inputElement.on('input', function(e) {
                 let val = $(this).val();
                 let caretPosition = e.target.selectionStart; 
@@ -899,7 +1065,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'range' });
             //! add label
             this.append($(
                 `
@@ -1031,7 +1197,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'coords' });
             //! add label
             this.append($(
                 `
@@ -1166,7 +1332,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, min, max, tip, inputClass, ignoreOutput, required, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'time' });
             //! add label
             this.append($(
                 `
@@ -1391,7 +1557,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, ignoreOutput, randomId: true, });
+            super({ id, ignoreOutput, randomId: true, type: 'true-false' });
             //! add label
             this.append($(
                 `
@@ -1480,7 +1646,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, ignoreOutput }) {
             if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
             if (!label) throw new Error('Expected field label, got undefined');
-            super();
+            super({ id, ignoreOutput, randomId: true, type: 'checkbox' });
             //generate dummy id, needed for the field to work properly
             id = id ?? (Math.random() * Math.random() + 1).toString(36).substring(2);
             super({ id, ignoreOutput });
@@ -1528,7 +1694,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, tip, required, ignoreOutput, format, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
-            super({ id, defaultVal, ignoreOutput });
+            super({ id, defaultVal, ignoreOutput, type: 'color' });
             format = format ?? 'int';
             //! add label
             this.append($(
@@ -1643,6 +1809,21 @@ let FormRow = {
                     if (format == "hex") {
                         dummyInput.val(val);
                     }
+                    else if (format == "rgb" || format == "rgbint" || format == "rgbfloat") {
+                        let r,g,b;
+                        r = val.substring(1, 3);
+                        g = val.substring(3, 5);
+                        b = val.substring(5, 7);
+                        r = parseInt(r, 16);
+                        g = parseInt(g, 16);
+                        b = parseInt(b, 16);
+                        if (format == "rgbfloat") {
+                            r = Math.round(r/255*100)/100;
+                            g = Math.round(g/255*100)/100;
+                            b = Math.round(b/255*100)/100;
+                        }
+                        dummyInput.val(`${r} ${g} ${b}`);
+                    }
                     else {
                         val = val.replace('#', '');
                         val = parseInt(val, 16);
@@ -1686,7 +1867,7 @@ let FormRow = {
         constructor({ id, ignoreId, label, buttonText, emptyListText, itemConstructor, item, inputHandler, inputOnly, tip, inputClass, required, defaultVal }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label && !inputOnly) throw 'Expected field label, got undefined';
-            super({ id, defaultVal });
+            super({ id, defaultVal, type: 'adder' });
             //add label
             this.append($(
                 `
@@ -1783,7 +1964,7 @@ let FormRow = {
             constructor({ id, ignoreId, label, playerOnly, codePreviewLocation, hidden = false, required = false }) {
                 if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
                 if (!label) throw new Error('Expected field label, got undefined');
-                super({ id });
+                super({ id, type: 'selector' });
                 //! add label
                 this.append($(
                     `
@@ -1830,7 +2011,7 @@ let FormRow = {
                 let selector = new FormRow.Select({
                     ignoreId: true,
                     label: 'Selector',
-                    options: allSelectors.raw,
+                    options: [unsetOption, ...allSelectors.raw],
                     tip: `
                     <span>
                         The base selector.
@@ -1901,7 +2082,7 @@ let FormRow = {
                                 dependencyEl = selectorArgEls[reason.field];
                             }
                             dependencyEl.inputElement?.on('input', function() {
-                                if (reason.values.includes(dependencyEl.value) || dependencyEl.value?.match?.(reason.values)) {
+                                if (reason.values.includes(dependencyEl.value)) {
                                     if (!fieldEl.isComingSoon()) fieldEl.disable(reason.whyDisabled);
                                     if (reason.disableValue !== undefined) {
                                         fieldEl.value = reason.disableValue;
@@ -1965,6 +2146,7 @@ let FormRow = {
                 //! handle updating main dummy input field
                 updateSelectorDummyField();
                 function updateSelectorDummyField() {
+                    if (selector.value == null) return;
                     let outputArrArgs = [];
                     codePreviewLarge.parent().addClass('hidden');
                     if (selector.value == "Player name") {
@@ -2073,7 +2255,7 @@ let FormRow = {
         Score: class extends GeneralFormRow {
             constructor({ id, ignoreId }) {
                 if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
-                super({ id });
+                super({ id, type: 'score' });
                 this.removeClass('form-row').addClass('input-container box-container score-container');
                 //add inputs
                 this.append($(`<input class="invisible" type="text"${this.id ? ' id="'+this.id+'" ' : ''} tabindex="-1">`))
@@ -2132,7 +2314,7 @@ let FormRow = {
             constructor({ id, ignoreId, label, required = false, defaultVal }) {
                 if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
                 if (!label) throw new Error('Expected field label, got undefined');
-                super({ id, defaultVal });
+                super({ id, defaultVal, type: 'sound' });
                 //! add label
                 this.append($(
                     `
@@ -2273,6 +2455,81 @@ let FormRow = {
                 this.inputsLocation.children('select').on(type, callback);
             }
         },
+        //! --------------------------- PARTICLE
+        Particle: class extends GeneralFormRow {
+            constructor({ id, ignoreId }) {
+                if (!id && !ignoreId) throw new Error('Expected field ID, got undefined');
+                super({ id, randomId: true, type: 'particle' });
+                this.append($(`<div class="particle-list"></div>`));
+                this.append($(`<input class="invisible" type="text" tabindex="-1"${id && ' id="'+id+'"'}>`));
+                let inputsLocation = this.children('.particle-list');
+                let dummyInput = this.children('.invisible');
+                this.inputsLocation = inputsLocation;
+                this.dummyInput = dummyInput;
+                let globalThis = this;
+                //! add particles to list
+                const allParticleRadios = {};
+                this.allParticleRadios = allParticleRadios;
+                function generateParticleLabel(particle) {
+                    return $(`
+                    <label for="${globalThis.id}-${particle}" class="particle-item" tabindex="0">
+                        <img src="/img/particle/${particle}.png">
+                        <code>${particle.replace(/_/g, ' ')}</code>
+                    </label>
+                    `);
+                }
+                function generateParticleRadio(particle) {
+                    return $(`<input class="particle-radio" type="radio" name="${globalThis.id}" id="${globalThis.id}-${particle}" particle="${particle}">`);
+                }
+                generateParticleList();
+                function generateParticleList() {
+                    for (const particle of allParticles) {
+                        let particleLabel = generateParticleLabel(particle);
+                        let particleRadio = generateParticleRadio(particle);
+                        allParticleRadios[particle] = particleRadio;
+                        particleRadio.on('input', updateDummyField);
+                        particleLabel.on('keydown', function(e) {
+                            const key = e.which;
+                            if (key == 13 || key == 32) {
+                                let id = $(this).attr('for');
+                                $('#'+id).prop('checked', true);
+                                e.preventDefault();
+                            }
+                        })
+                        inputsLocation.append(particleRadio);
+                        inputsLocation.append(particleLabel);
+                    }
+                }
+                // set default particle
+                allParticleRadios[Object.keys(allParticleRadios)[0]].prop('checked', true);
+                
+                updateDummyField();
+                function updateDummyField() {
+                    let val;
+                    for (const particle in allParticleRadios) {
+                        const radioEl = allParticleRadios[particle]
+                        if (radioEl.is(':checked')) {
+                            val = radioEl.attr('particle');
+                            break;
+                        }
+                    }
+                    dummyInput.val(val);
+                    dummyInput.trigger('input');
+                }
+            }
+            get value() {
+                return this.dummyInput.val();
+            }
+            set value(value) {
+                this.dummyInput.val(value);
+                this.dummyInput.trigger('input');
+                this.allParticleRadios[value]?.prop('checked', true);
+            }
+            addInputListeners(type, callback) {
+                this.inputsLocation.children('input').on(type, callback);
+            }
+            isFilled() { return true };
+        },
     },
     visual: {
         //! --------------------------- GAP
@@ -2306,15 +2563,26 @@ let FormRow = {
         },
         //! --------------------------- HEADER
         Header: class extends VisualFormRow {
-            constructor({ text, tag, fontsize, textAfter }) {
+            constructor({ text, tag = 'h4', fontsize, textAfter }) {
                 if (!text) throw 'Expected header text, got nothing.';
                 super();
                 $.extend(this, $('<button class="form-header"></button>'));
-                let tagEl = $(`<${tag ?? 'h4'}><span>${text}</span></${tag ?? 'h4'}>`);
+                let tagEl = $(`<${tag}><span>${text}</span></${tag}>`);
                 this.append(tagEl);
-                this.css({ "font-size": fontsize ?? null });
+                this.css({ "font-size": fontsize });
                 if (textAfter) {
                     $(`<span class="text-after">${textAfter.text}</span>`).css(textAfter.css ?? {}).appendTo(tagEl);
+                }
+            }
+        },
+        //! --------------------------- TEXT ROW
+        TextRow: class extends VisualFormRow {
+            constructor({ text, showOnlyIfEmpty = false }) {
+                if (!text) throw 'Expected text content, got nothing.';
+                super();
+                $.extend(this, $(`<span class="form-text">${text}</span>`));
+                if (showOnlyIfEmpty) {
+                    this.addClass('empty-only')
                 }
             }
         },
@@ -2322,7 +2590,9 @@ let FormRow = {
 }
 
 function generateFormRow(fieldData, field) {
-    switch (fieldData.type) {
+    switch (fieldData.type.toLowerCase()) {
+        case 'textrow':
+            return new FormRow.visual.TextRow(fieldData);
         case 'dummy':
             return new FormRow.Dummy({
                 ignoreId: true,
@@ -2364,8 +2634,18 @@ function generateFormRow(fieldData, field) {
                 ignoreId: true,
                 ...fieldData,
             });
+        case 'vec3':
+            return new FormRow.Vec3({
+                ignoreId: true,
+                ...fieldData,
+            });
         case 'uuid':
             return new FormRow.UUID({
+                ignoreId: true,
+                ...fieldData,
+            });
+        case 'time':
+            return new FormRow.Time({
                 ignoreId: true,
                 ...fieldData,
             });
@@ -2382,6 +2662,18 @@ function generateFormRow(fieldData, field) {
         case 'selector':
             return new FormRow.compound.Selector({
                 ignoreId: true,
+                ...fieldData,
+            });
+        case 'particle':
+            return new FormRow.compound.Particle({
+                ignoreId: true,
+            })
+        case 'noteselector': //TODO ==================================
+        case 'block':        //TODO ==================================
+        case 'item':         //TODO ==================================
+            return new FormRow.Text({
+                ignoreId: true,
+                size: 'M',
                 ...fieldData,
             });
         case 'advancementadder':
@@ -2504,6 +2796,7 @@ export default class Form extends VisualFormRow {
         super();
         $.extend(this, $('<div class="generator-container"></div>'));
         let formInputs = {};
+        let formInputsData = {};
         data.steps.forEach((step, i) => {
             let thisStep = new FormStep({
                 stepNum: i+1,
@@ -2512,18 +2805,62 @@ export default class Form extends VisualFormRow {
                 optional: step.optional,
             }).addToDOM(this);
             for (const field of step.fields) {
+                if (field.type == "textrow") {
+                    generateFormRow(field, field.name)?.addToDOM(thisStep.section);
+                }
                 if (!field.name) continue;
                 formInputs[field.name] = generateFormRow(field, field.name)?.addToDOM(thisStep.section);
                 formInputs[field.name].required = field.required;
                 formInputs[field.name].default = field.default;
+                formInputsData[field.name] = field;
             }
         });
+        for (const field in formInputs) {
+            const fieldData = formInputsData[field];
+            const fieldEl = formInputs[field];
+            if (fieldData.disableIf?.length) {
+                fieldData.disableIf.forEach(reason => {
+                    let dependencyEl = formInputs[reason.field];
+                    dependencyEl.addInputListeners('input', checkIfShouldBeDisabled);
+                    checkIfShouldBeDisabled();
+                    function checkIfShouldBeDisabled() {
+                        if (reason.values.includes(dependencyEl.value)) {
+                            if (!fieldEl.isComingSoon()) fieldEl.disable(reason.whyDisabled);
+                            if (reason.disableValue !== undefined) {
+                                fieldEl.value = reason.disableValue;
+                            }
+                        }
+                        else {
+                            if (!fieldEl.isComingSoon()) fieldEl.enable();
+                            if (reason.enableValue !== undefined) {
+                                fieldEl.value = reason.enableValue;
+                            }
+                        }
+                    }
+                })
+            }
+            if (fieldData.addIf?.length) {
+                fieldData.addIf.forEach(reason => {
+                    let dependencyEl = formInputs[reason.field];
+                    dependencyEl.addInputListeners('input', checkIfShouldBeHidden);
+                    checkIfShouldBeHidden();
+                    function checkIfShouldBeHidden() {
+                        if (reason.values.includes(dependencyEl.value)) {
+                            fieldEl.removeClass('hidden');
+                        }
+                        else {
+                            fieldEl.addClass('hidden');
+                        }
+                    }
+                });
+            }
+        }
         let output = new FormOutput().addToDOM(this).textarea;
         for (const field in formInputs) {
             const fieldEl = formInputs[field];
             fieldEl.addInputListeners('input', function() {
                 data.generator(formInputs, output);
-            })
+            });
         }
     }
 }
@@ -2594,3 +2931,8 @@ function generateTipElement(tip) {
 function addThousandSep(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+
+$(window).ready(function() {
+    let form = $('.form');
+});

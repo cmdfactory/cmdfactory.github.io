@@ -3,6 +3,11 @@ changes marked with "-" are removed features
 changes marked with "*" are bug fixes
 changes marked with "!" are internal changes, that do not affect the website directly
 
+1.1.1
++ added responsivnes
+- removed code previews from mobile
+* fixed info containers being off-screen on mobile
+
 1.1.0
 + added support for "/particle" command
 + added "FormRow.compound.Particle" constructor

@@ -9413,7 +9413,7 @@ export const allCommands = {
                     },
                     {
                         type: "textrow",
-                        text: "No additional particle options are available for the selected particle!",
+                        text: "No additional options are available for this particle!",
                         showOnlyIfEmpty: true,
                     }
                 ],

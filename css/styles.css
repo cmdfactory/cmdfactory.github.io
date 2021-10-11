@@ -296,6 +296,7 @@ header nav > span > div small {
 }
 .generator-step > .form-header h1 {
     font-size: 18pt;
+    word-wrap: break-word;
 }
 .generator-step > .form-header h2 {
     font-size: 16.67pt;
@@ -344,4 +345,205 @@ header nav > span > div small {
 }
 .generator-step.finish textarea:focus {
     border-color: var(--acc-vl);
+}
+/*
+!==============================================================
+!        Mobile CSS
+!==============================================================
+*/
+@media only screen and (max-width: 700px) {
+    /* make header logo text smaller */
+    header .logo .name {
+        font-size: x-large;
+    }
+    /* hide list of planned commands */
+    .command-list-container .lists > div:nth-of-type(2),
+    .command-list-container .lists > div:nth-of-type(1) h4 {
+        display: none;
+    }
+    /* lower generator-container paddings */
+    .generator-container {
+        padding: 1rem 0;
+    }
+    .generator-step {
+        padding: 0.5rem 0.25rem 1.5rem 3px;
+    }
+    /* make the step number circles smaller */
+    .generator-step .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    .generator-step.finish .step-number {
+        width: 55px;
+        height: 55px;
+        font-size: 15px;
+    }
+    /* lower section header font sizes */
+    .generator-step > .form-header h1 {
+        font-size: 13pt;
+    }
+    .generator-step > .form-header h2 {
+        font-size: 11.67pt;
+    }
+    .generator-step > .form-header h3 {
+        font-size: 10.33pt;
+    }
+    .generator-step > .form-header h4 {
+        font-size: 9pt;
+    }
+    .generator-step > .form-header h5 {
+        font-size: 7.67pt;
+    }
+    .generator-step > .form-header h6 {
+        font-size: 6.33pt;
+    }
+    .box-container .form-header > h1 {
+        font-size: 12pt;
+    }
+    .box-container .form-header > h2 {
+        font-size: 11pt;
+    }
+    .box-container .form-header > h3 {
+        font-size: 10pt;
+    }
+    .box-container .form-header > h4 {
+        font-size: 9pt;
+    }
+    .box-container .form-header > h5 {
+        font-size: 8pt;
+    }
+    .box-container .form-header > h6 {
+        font-size: 7pt;
+    }
+    .form-text {
+        font-size: 11px;
+    }
+    /* lower input font sizes and heights */
+    input, select {
+        font-size: 11px;
+        height: 21px;
+    }
+    button:not(.form-header) {
+        height: 21px;
+        width: 21px;
+    }
+    /* change input sizes */
+    .sizeXS {
+        width: 50px;
+    }
+    .sizeS {
+        width: 75px;
+    }
+    .sizeM {
+        width: 100px;
+    }
+    .sizeL {
+        width: 125px;
+    }
+    /* add scrollbars to long inputs */
+    .selector-container {
+        overflow-x: auto;
+    }
+    .uuid-container {
+        overflow-x: auto;
+    }
+    /* make output section smaller */
+    .generator-step.finish > section {
+        margin-left: 35px;
+    }
+    .generator-step.finish textarea {
+        width: 95%;
+        max-width: 95%;
+    }
+    /* hide code previews */
+    .code-preview {
+        display: none;
+    }
+    /* modify special fields such as "Sound" */
+    .sound-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .sound-list select {
+        width: 100%;
+    }
+    .sound-list span {
+        color: transparent;
+        line-height: 5px;
+    }
+}
+@media only screen and (max-width: 550px) {
+    /* make header texts smaller */
+    header {
+        height: 3rem;
+        padding: 0.1rem 1rem 0.1rem 0.75rem;
+    }
+    header .logo .name {
+        font-size: large;
+    }
+    header nav > span > span {
+        font-size: smaller;
+    }
+}
+@media only screen and (max-width: 400px) {
+    /* make header texts smaller */
+    header {
+        height: 3rem;
+        padding: 0.1rem 0.35rem 0.1rem 0.35rem;
+    }
+    header .logo .name {
+        font-size: medium;
+    }
+    header nav > span {
+        margin: 0 0.4rem;
+    }
+    header nav > span > div a {
+        margin: 0 0.4rem;
+        padding: 0.2rem 0.25rem;
+        font-size: 14px;
+    }
+}
+/*! modify particle selector */
+@media only screen and (max-width: 840px) {
+    .particle-item {
+        width: 6.5em;
+        font-size: 11px;
+    }
+    .particle-item code {
+        font-size: 11px;
+    }
+}
+@media only screen and (max-width: 700px) {
+    .particle-list {
+        margin-left: 16px;
+    }
+}
+@media only screen and (max-width: 630px) {
+    .particle-item {
+        width: 6em;
+        font-size: 10px;
+    }
+    .particle-item code {
+        font-size: 10px;
+    }
+}
+@media only screen and (max-width: 480px) {
+    .particle-item {
+        width: 6.5em;
+        font-size: 9px;
+    }
+    .particle-item code {
+        font-size: 9px;
+    }
+}
+@media only screen and (max-width: 400px) {
+    .particle-item {
+        width: 6.5em;
+        font-size: 8px;
+    }
+    .particle-item code {
+        font-size: 8px;
+    }
 }

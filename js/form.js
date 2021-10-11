@@ -226,12 +226,12 @@ class Section {
     }
 }
 class BoxContainer extends VisualFormRow {
-    constructor ({ hideable = true, id, additionalChildren, hidden = false }) {
+    constructor ({ hideable = true, id, additionalChildren, hidden = false, classes = '' }) {
         super();
         $.extend(this, $(`
             <div class="input-container-master">
                 <input class="invisible" type="text"${id ? ' id="'+id+'" ' : ''} tabindex="-1">
-                <div class="input-container box-container">
+                <div class="input-container box-container ${classes}">
                 
                 </div>
             </div>
@@ -768,7 +768,7 @@ let FormRow = {
     },
     //! --------------------------- UUID
     Vec3: class extends GeneralFormRow {
-        constructor({ id, ignoreId, label, size = 'S', tip, inputClass, ignoreOutput, defaultVal, required = false }) {
+        constructor({ id, ignoreId, label, size = 'XS', tip, inputClass, ignoreOutput, defaultVal, required = false }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
             super({ id, defaultVal, ignoreOutput, type: 'vec3' });
@@ -1992,6 +1992,7 @@ let FormRow = {
                         </span>`,
                     ],
                     hidden,
+                    classes: 'selector-container',
                 }).addToDOM(this);
                 let inputContainer = boxContainer.inputContainer;
                 let dummyInput = boxContainer.dummyInput;
@@ -2918,8 +2919,10 @@ function generateTipElement(tip) {
     );
     showTipElement.find('.info-button').click(function(e) {
         let infoContainer = $('#info-container');
-        let top = $(this).offset().top - 12;
-        let left = $(this).offset().left + $(this).outerWidth() + 10;
+        // let top = $(this).offset().top - 12;
+        // let left = $(this).offset().left + $(this).outerWidth() + 10;
+        let top = $(this).offset().top + $(this).outerHeight() + 12;
+        let left = $(this).offset().left + $(this).outerWidth();
         infoContainer.css({top, left});
         infoContainer.find('.info-message').html(tip);
         infoContainer.removeClass('hidden');

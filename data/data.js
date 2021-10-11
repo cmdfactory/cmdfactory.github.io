@@ -8904,12 +8904,19 @@ export const allSelectors = {
         '@e',
         'Player name',
     ],
+    raw_player: [
+        '@s',
+        '@p',
+        '@a',
+        '@r',
+        'Player name',
+    ],
     explanations: [
         ['@s', 'The command\'s executor'],
         ['@p', 'Nearest player'],
         ['@a', 'All players'],
         ['@r', 'A random player'],
-        ['@e', 'All entities'],
+        ['@e', 'All entities', true],
         ['</code>Player name<code>', 'Lets you specify the exact player name that should be targeted.'],
     ],
 };
@@ -9214,13 +9221,366 @@ export const allCommands = {
     clear: { planned: true },
     clone: { planned: true },
     data: { planned: true },
-    effect: { planned: true },
-    enchant: { planned: true },
+    effect: {
+        wikipage: 'Commands/effect',
+        steps: [
+            {
+                header: {
+                    text: 'Fill all required fields',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "action",
+                        type: "select",
+                        options: [
+                            'give',
+                            'clear',
+                        ],
+                        required: true,
+                        label: "Action",
+                        tip: `<span>
+                            Specifies what action should be performed.
+                            <ul>
+                                <li><b>clear</b> - clears the effects from the entity.</li>
+                                <li><b>give</b> - gives an effect to the target entity.</li>
+                            </ul>
+                        </span>`,
+                    },
+                    {
+                        name: "target",
+                        type: "selector",
+                        required: true,
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'give' ],
+                            }
+                        ],
+                        label: "Target entity",
+                    },
+                    {
+                        name: "effect",
+                        type: "select",
+                        options: [
+                            unsetOption,
+                            ...allEffects,
+                        ],
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'give' ],
+                            }
+                        ],
+                        required: true,
+                        label: "Effect",
+                    },
+                ],
+            },
+            {
+                header: {
+                    text: 'Specify additional options',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "target_clear",
+                        type: "selector",
+                        default: '@s',
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'clear' ],
+                            }
+                        ],
+                        label: "Target entity",
+                    },
+                    {
+                        name: "effect_clear",
+                        type: "select",
+                        options: [
+                            unsetOption,
+                            ...allEffects,
+                        ],
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'clear' ],
+                            }
+                        ],
+                        label: "Effect",
+                    },
+                    {
+                        name: "duration",
+                        type: "time",
+                        min: 0,
+                        max: 1_000_000,
+                        default: 30,
+                        unit: ['s', 'seconds'],
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'give' ],
+                            }
+                        ],
+                        label: "Duration",
+                    },
+                    {
+                        name: "amplifier",
+                        type: "number",
+                        min: 0,
+                        max: 255,
+                        default: 0,
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'give' ],
+                            }
+                        ],
+                        label: "Amplifier",
+                    },
+                    {
+                        name: "hideParticles",
+                        type: "truefalse",
+                        addIf: [
+                            {
+                                field: 'action',
+                                values: [ 'give' ],
+                            }
+                        ],
+                        label: "Hide Particles?",
+                        tip: `<span>
+                            Specifies if the effect particles should be hidden for that effect. Default to <code>false</code>.
+                        </span>`,
+                    },
+                ]
+            },
+        ],
+        generator: function(fields, output) {
+            let allRequiredFieldsAreFilled = true;
+            for (const field in fields) {
+                const fieldEl = fields[field];
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.isHidden()) {
+                    allRequiredFieldsAreFilled = false;
+                    break;
+                }
+            }
+            output.removeClass('red');
+            if (allRequiredFieldsAreFilled) {
+                let outputArr = [];
+                outputArr.push('/effect');
+                //action
+                outputArr.push(fields.action.value);
+                if (fields.action.value == 'clear') {
+                    //target
+                    if (fields.target_clear.isFilled() || fields.effect_clear.isFilled()) {
+                        outputArr.push(fields.target_clear.isFilled() ? fields.target_clear.value : fields.target_clear.default);
+                    }
+                    //effect
+                    if (fields.effect_clear.isFilled()) {
+                        outputArr.push(fields.effect_clear.value);
+                    }
+                }
+                else {
+                    //target
+                    outputArr.push(fields.target.value);
+                    //effect
+                    outputArr.push(fields.effect.value);
+                    //duration
+                    if (fields.duration.isFilled() || fields.amplifier.isFilled() || fields.hideParticles.isFilled()) {
+                        outputArr.push(fields.duration.isFilled() ? fields.duration.value : fields.duration.default);
+                    }
+                    //amplifier
+                    if (fields.amplifier.isFilled() || fields.hideParticles.isFilled()) {
+                        outputArr.push(fields.amplifier.isFilled() ? fields.amplifier.value : fields.amplifier.default);
+                    }
+                    //hide particles
+                    if (fields.hideParticles.isFilled()) {
+                        outputArr.push(fields.hideParticles.value);
+                    }
+                }
+                //concatenate array
+                output.val(outputArr.join(' '));
+            }
+            else {
+                output.addClass('red');
+                output.val('Not all required fields are filled!');
+            }
+        }
+    },
+    enchant: {
+        wikipage: 'Commands/enchant',
+        steps: [
+            {
+                header: {
+                    text: 'Fill all required fields',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "target",
+                        type: "selector",
+                        required: true,
+                        label: "Target entity",
+                    },
+                    {
+                        name: "enchant",
+                        type: "select",
+                        options: [
+                            unsetOption,
+                            ...Object.keys(allEnchantments),
+                        ],
+                        required: true,
+                        label: "Enchantment",
+                    },
+                ],
+            },
+            {
+                header: {
+                    text: 'Specify additional options',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "level",
+                        type: "number",
+                        min: 1,
+                        max: 5,
+                        label: "Level",
+                    },
+                ]
+            },
+        ],
+        generator: function(fields, output) {
+            let allRequiredFieldsAreFilled = true;
+            for (const field in fields) {
+                const fieldEl = fields[field];
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.isHidden()) {
+                    allRequiredFieldsAreFilled = false;
+                    break;
+                }
+            }
+            output.removeClass('red');
+            if (allRequiredFieldsAreFilled) {
+                let outputArr = [];
+                outputArr.push('/enchant');
+                //target
+                outputArr.push(fields.target.value);
+                //enchant
+                outputArr.push(fields.enchant.value);
+                //level
+                if (fields.level.isFilled()) {
+                    outputArr.push(fields.level.value);
+                }
+                
+                //concatenate array
+                output.val(outputArr.join(' '));
+            }
+            else {
+                output.addClass('red');
+                output.val('Not all required fields are filled!');
+            }
+        }
+    },
     execute: { planned: true },
     fill: { planned: true },
-    gamemode: { planned: true },
+    gamemode: {
+        wikipage: 'Commands/gamemode',
+        steps: [
+            {
+                header: {
+                    text: 'Choose game mode',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "mode",
+                        type: "select",
+                        required: true,
+                        options: [
+                            unsetOption,
+                            ...allGameModes,
+                        ],
+                        label: "Game Mode",
+                    },
+                ],
+            },
+            {
+                header: {
+                    text: 'Choose target players',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "target",
+                        type: "selector",
+                        playerOnly: true,
+                        label: "Target Player",
+                        tip: `<span>
+                            Specifies who should have their game mode changed.
+                        </span>`,
+                    },
+                ],
+            },
+        ],
+        generator: function(fields, output) {
+            let allRequiredFieldsAreFilled = true;
+            for (const field in fields) {
+                const fieldEl = fields[field];
+                if (fieldEl.required && !fieldEl.isFilled()) {
+                    allRequiredFieldsAreFilled = false;
+                    break;
+                }
+            }
+            output.removeClass('red');
+            if (allRequiredFieldsAreFilled) {
+                let outputArr = [];
+                outputArr.push('/gamemode');
+                //game mode
+                outputArr.push(fields.mode.value);
+                //target
+                fields.target.isFilled() && outputArr.push(fields.target.value);
+                
+                //concatenate array
+                output.val(outputArr.join(' '));
+            }
+            else {
+                output.addClass('red');
+                output.val('Not all required fields are filled!');
+            }
+        }
+    },
     item: { planned: true },
-    kill: { planned: true },
+    kill: {
+        wikipage: 'Commands/kill',
+        steps: [
+            {
+                header: {
+                    text: 'Choose target entities',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "target",
+                        type: "selector",
+                        label: "Target entity",
+                        tip: `<span>
+                            Specifies who should be killed.
+                        </span>`,
+                    },
+                ],
+            },
+        ],
+        generator: function(fields, output) {
+            let outputArr = [];
+            outputArr.push('/kill');
+            //target
+            fields.target.isFilled() && outputArr.push(fields.target.value);
+            
+            //concatenate array
+            output.val(outputArr.join(' '));
+        }
+    },
     loot: { planned: true },
     particle: {
         wikipage: 'Commands/particle',
@@ -9492,7 +9852,7 @@ export const allCommands = {
             let allRequiredFieldsAreFilled = true;
             for (const field in fields) {
                 const fieldEl = fields[field];
-                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.hasClass('hidden')) {
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.isHidden()) {
                     allRequiredFieldsAreFilled = false;
                     break;
                 }
@@ -9690,7 +10050,7 @@ export const allCommands = {
             let allRequiredFieldsAreFilled = true;
             for (const field in fields) {
                 const fieldEl = fields[field];
-                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.hasClass('hidden')) {
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.isHidden()) {
                     allRequiredFieldsAreFilled = false;
                     break;
                 }
@@ -9723,7 +10083,93 @@ export const allCommands = {
     setblock: { planned: true },
     stopsound: { planned: true },
     summon: { planned: true },
-    tag: { planned: true },
+    tag: {
+        wikipage: 'Commands/tag',
+        steps: [
+            {
+                header: {
+                    text: 'Fill the required fields',
+                    tag: 'h1',
+                },
+                fields: [
+                    {
+                        name: "target",
+                        type: "selector",
+                        required: true,
+                        label: "Target entity",
+                    },
+                    {
+                        name: "action",
+                        type: "select",
+                        options: [
+                            'add',
+                            'list',
+                            'remove',
+                        ],
+                        required: true,
+                        label: "Action",
+                        tip: `<span>
+                            Specifies what action should be performed.
+                            <ul>
+                                <li><b>add</b> - adds the tag to the entity. Nothing happens if the entity already has that tag.</li>
+                                <li><b>list</b> - lists all the tags of that entity.</li>
+                                <li><b>remove</b> - removes the tag to the entity. Nothing happens if the entity doesn't have that tag.</li>
+                            </ul>
+                        </span>`,
+                    },
+                    {
+                        name: "tag",
+                        type: "text",
+                        size: "L",
+                        maxLength: 16,
+                        inputRegex: [
+                            /[^a-z0-9_\+\.\-]/i,
+                        ],
+                        required: true,
+                        addIf: [
+                            {
+                                field: "action",
+                                values: [ 'add', 'remove' ],
+                                softHidden: true,
+                            }
+                        ],
+                        label: "Tag name",
+                        tip: `<span>
+                            Specifies the tag to be added or removed. Maximum 16 characters.
+                        </span>`,
+                    },
+                ],
+            },
+        ],
+        generator: function(fields, output) {
+            let allRequiredFieldsAreFilled = true;
+            for (const field in fields) {
+                const fieldEl = fields[field];
+                if (fieldEl.required && !fieldEl.isFilled() && !fieldEl.isHidden()) {
+                    allRequiredFieldsAreFilled = false;
+                    break;
+                }
+            }
+            output.removeClass('red');
+            if (allRequiredFieldsAreFilled) {
+                let outputArr = [];
+                outputArr.push('/tag');
+                //target
+                outputArr.push(fields.target.value);
+                //action
+                outputArr.push(fields.action.value);
+                //tag name
+                fields.action.value != 'list' && outputArr.push(fields.tag.value);
+                
+                //concatenate array
+                output.val(outputArr.join(' '));
+            }
+            else {
+                output.addClass('red');
+                output.val('Not all required fields are filled!');
+            }
+        }
+    },
     team: { planned: true },
     teleport: { planned: true },
     tellraw: { planned: true },

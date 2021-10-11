@@ -97,6 +97,9 @@ class GeneralFormRow {
     isFilled() {
         return Boolean(this.value);
     }
+    isHidden() {
+        return Boolean(this.hasClass('hidden') || this.hasClass('soft-hidden'));
+    }
 }
 class VisualFormRow {
     constructor() {};
@@ -245,7 +248,8 @@ class BoxContainer extends VisualFormRow {
                 <button class="show-hide-button">
                     <i class="fas fa-angle-down"></i>
                 </button>
-            `)
+            `);
+            showHideButton.toggleClass('active', !hidden);
             this.prepend(showHideButton);
             let globalThis = this;
             showHideButton.click(function() {
@@ -518,6 +522,7 @@ let FormRow = {
                     ...(inputRegex ?? []),
                 ];
             }
+            if (min >= 0) inputRegex.push(/-/);
             //! accepts an array of [pattern, replace] arrays
             inputElement.on('input', function(e) {
                 let val = $(this).val();
@@ -1329,7 +1334,7 @@ let FormRow = {
     },
     //! --------------------------- TIME
     Time: class extends GeneralFormRow {
-        constructor({ id, ignoreId, label, min, max, tip, inputClass, ignoreOutput, required, defaultVal }) {
+        constructor({ id, ignoreId, label, min, max, tip, inputClass, ignoreOutput, required, defaultVal, unit }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
             super({ id, defaultVal, ignoreOutput, type: 'time' });
@@ -1355,7 +1360,7 @@ let FormRow = {
                         <button class="clear-button" tabindex="-1">x</button>
                     </div>
                     <div class="time-display-container hidden">
-                        <span class="time-display">Time in ticks: </span>
+                        <span class="time-display">Time in ${unit ? unit[1] : 'ticks'}: </span>
                         <span class="time-display time-display-val">0</span>
                     </div>
                 </div>
@@ -1412,6 +1417,7 @@ let FormRow = {
                 [ /(y.*?)y/i, '$1' ],
                 [ /-[minaxtshdy]/i, '-', -1],
             ];
+            unit[0] == 's' && inputRegex.push(/[t]/i);
             if (inputRegex) {
                 inputElement.on('input', function(e) {
                     let val = $(this).val();
@@ -1523,6 +1529,7 @@ let FormRow = {
                 timeInTicks += time.h * timeToTicks.h;
                 timeInTicks += time.d * timeToTicks.d;
                 timeInTicks += time.y * timeToTicks.y;
+                if (unit[0] == 's') timeInTicks /= 20;
                 timeInTicks = Math.max(min, timeInTicks);
                 timeInTicks = Math.min(max, timeInTicks);
                 timeInTicks = Math.round(timeInTicks);
@@ -1554,7 +1561,7 @@ let FormRow = {
     },
     //! --------------------------- TRUE/UNSET/FALSE
     TrueFalse: class extends GeneralFormRow {
-        constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required }) {
+        constructor({ id, ignoreId, label, tip, inputClass, ignoreOutput, required, isOutputNumber = false }) {
             if (!id && !ignoreId) throw 'Expected field ID, got undefined';
             if (!label) throw 'Expected field label, got undefined';
             super({ id, ignoreOutput, randomId: true, type: 'true-false' });
@@ -1592,7 +1599,7 @@ let FormRow = {
             this.dummyInput = dummyInput;
             inputElement.change(function(e) {
                 if ($(inputElement[0]).is(':checked')) {
-                    dummyInput.val(false);
+                    dummyInput.val('false');
                     if (isOutputNumber) dummyInput.val('0b');
                     return;
                 }
@@ -1601,7 +1608,7 @@ let FormRow = {
                     return;
                 }
                 if ($(inputElement[2]).is(':checked')) {
-                    dummyInput.val(true);
+                    dummyInput.val('true');
                     if (isOutputNumber) dummyInput.val('1b');
                     return;
                 }
@@ -1613,10 +1620,7 @@ let FormRow = {
             };
         }
         get value() {
-            let inputs = this.find('input[type="radio"]');
-            if (inputs[0].is(':checked')) return false;
-            if (inputs[2].is(':checked')) return true;
-            return null;
+            return this.dummyInput.val();
         }
         set value(value) {
             let inputs = this.find('input[type="radio"]');
@@ -2012,13 +2016,14 @@ let FormRow = {
                 let selector = new FormRow.Select({
                     ignoreId: true,
                     label: 'Selector',
-                    options: [unsetOption, ...allSelectors.raw],
+                    options: [unsetOption, ...(playerOnly ? allSelectors.raw_player : allSelectors.raw)],
                     tip: `
                     <span>
                         The base selector.
                         <br/>
                         <ul>
                             ${allSelectors.explanations.reduce((acc, val) => {
+                                if (playerOnly && val[2]) return acc;
                                 return acc += [
                                     '<li>',
                                     '<b><code>', val[0], '</code></b>',
@@ -2650,6 +2655,12 @@ function generateFormRow(fieldData, field) {
                 ignoreId: true,
                 ...fieldData,
             });
+        case 'truefalse':
+        case 'fut':
+            return new FormRow.TrueFalse({
+                ignoreId: true,
+                ...fieldData,
+            });
         case 'color':
             return new FormRow.Color({
                 ignoreId: true,
@@ -2848,9 +2859,10 @@ export default class Form extends VisualFormRow {
                     function checkIfShouldBeHidden() {
                         if (reason.values.includes(dependencyEl.value)) {
                             fieldEl.removeClass('hidden');
+                            fieldEl.removeClass('soft-hidden');
                         }
                         else {
-                            fieldEl.addClass('hidden');
+                            fieldEl.addClass(reason.softHidden ? 'soft-hidden' : 'hidden');
                         }
                     }
                 });

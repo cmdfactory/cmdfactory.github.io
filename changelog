@@ -3,6 +3,14 @@ changes marked with "-" are removed features
 changes marked with "*" are bug fixes
 changes marked with "!" are internal changes, that do not affect the website directly
 
+1.2.0
++ added support for "/gamemode", "/kill", "/tag", "/effect", "/enchant" commands
++ time field now supports units other than "tick" (only "second" for now)
++ fields can now be soft-hidden
+* fixed show-hide buttons from box containers having wrong state sometimes
+* fixed player-only selector fields still showing "@e" selector
+* fixed true-false fields returning wrong value after minification
+
 1.1.1
 + added responsivnes
 - removed code previews from mobile

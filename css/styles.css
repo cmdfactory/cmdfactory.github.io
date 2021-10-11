@@ -56,12 +56,11 @@ body {
     color: var(--text);
 }
 .hidden {
-    opacity: 0%;
-    display: none;
+    display: none !important;
 }
 .soft-hidden {
-    visibility: hidden;
-    cursor: default;
+    opacity: 0%;
+    pointer-events: none;
 }
 .unselectable {
     -webkit-touch-callout: none;

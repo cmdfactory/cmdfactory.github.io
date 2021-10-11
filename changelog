@@ -1,20 +1,23 @@
 changes marked with "+" are added features
 changes marked with "-" are removed features
-changes marked with "*" are bug fixes
+changes marked with "@" are bug fixes
 changes marked with "!" are internal changes, that do not affect the website directly
+
+1.2.1
+@ fixed time units causing the function to error out when unit was not provided
 
 1.2.0
 + added support for "/gamemode", "/kill", "/tag", "/effect", "/enchant" commands
 + time field now supports units other than "tick" (only "second" for now)
 + fields can now be soft-hidden
-* fixed show-hide buttons from box containers having wrong state sometimes
-* fixed player-only selector fields still showing "@e" selector
-* fixed true-false fields returning wrong value after minification
+@ fixed show-hide buttons from box containers having wrong state sometimes
+@ fixed player-only selector fields still showing "@e" selector
+@ fixed true-false fields returning wrong value after minification
 
 1.1.1
 + added responsivnes
 - removed code previews from mobile
-* fixed info containers being off-screen on mobile
+@ fixed info containers being off-screen on mobile
 
 1.1.0
 + added support for "/particle" command
@@ -25,8 +28,8 @@ changes marked with "!" are internal changes, that do not affect the website dir
 + added minified versions of all files
 
 1.0.1
-* fixed color fields not being generated
-* fixed all command buttons generating a form for "/playsound"
+@ fixed color fields not being generated
+@ fixed all command buttons generating a form for "/playsound"
 ! moved random id generation to "GeneralFormRow" class
 
 1.0.0

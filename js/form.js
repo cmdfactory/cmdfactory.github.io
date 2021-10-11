@@ -1360,7 +1360,7 @@ let FormRow = {
                         <button class="clear-button" tabindex="-1">x</button>
                     </div>
                     <div class="time-display-container hidden">
-                        <span class="time-display">Time in ${unit ? unit[1] : 'ticks'}: </span>
+                        <span class="time-display">Time in ${unit?.[1] ?? 'ticks'}: </span>
                         <span class="time-display time-display-val">0</span>
                     </div>
                 </div>
@@ -1417,7 +1417,7 @@ let FormRow = {
                 [ /(y.*?)y/i, '$1' ],
                 [ /-[minaxtshdy]/i, '-', -1],
             ];
-            unit[0] == 's' && inputRegex.push(/[t]/i);
+            unit?.[0] == 's' && inputRegex.push(/[t]/i);
             if (inputRegex) {
                 inputElement.on('input', function(e) {
                     let val = $(this).val();
